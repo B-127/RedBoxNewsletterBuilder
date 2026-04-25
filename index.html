@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="
+      default-src   'none';
+      script-src    'self' https://cdnjs.cloudflare.com;
+      style-src     'self' https://fonts.googleapis.com;
+      font-src      'self' https://fonts.gstatic.com;
+      connect-src   'self';
+      img-src       'self' data:;
+      base-uri      'none';
+      form-action   'none';
+      frame-ancestors 'none';
+    ">
+  <title>Newsletter Builder — The Red Box</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="builder.css">
+</head>
+<body>
+
+<header>
+  <div class="top-rule"></div>
+  <div class="header-inner">
+    <div class="logo" aria-label="The Red Box Newsletter Builder">
+      The <span class="logo-accent">Red</span> Box
+      <span class="logo-sub">Newsletter Builder</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" id="btn-preview" type="button">Preview</button>
+      <button class="btn-primary" id="btn-generate" type="button">Generate .docx</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="builder-wrap">
+
+    <!-- ── META ── -->
+    <section class="meta-section card">
+      <h2 class="section-heading">Newsletter Date</h2>
+      <div class="field-row">
+        <label class="field-label" for="nl-date">Date</label>
+        <input class="field-input" type="date" id="nl-date" name="nl-date" required>
+      </div>
+    </section>
+
+    <!-- ── TOP STORY ── -->
+    <section class="card" id="section-top-story">
+      <div class="section-header-row">
+        <h2 class="section-heading">01 thing you need to know to start your day</h2>
+      </div>
+      <div class="articles-list" id="articles-top-story"></div>
+      <button class="btn-add" type="button" data-target="top-story" aria-label="Add article to top story">
+        <span class="btn-add-icon">+</span> Add Article
+      </button>
+    </section>
+
+    <!-- ── GLOBAL UPDATES ── -->
+    <section class="card" id="section-global">
+      <div class="section-header-row">
+        <h2 class="section-heading">01 global updates to keep an eye on</h2>
+      </div>
+      <div class="articles-list" id="articles-global"></div>
+      <button class="btn-add" type="button" data-target="global" aria-label="Add global update article">
+        <span class="btn-add-icon">+</span> Add Article
+      </button>
+    </section>
+
+    <!-- ── SUPPLEMENTARY SUMMARY ── -->
+    <section class="card" id="section-supp-summary">
+      <div class="section-header-row">
+        <h2 class="section-heading">Supplementary News – In Summary</h2>
+        <p class="section-hint">These appear as a table. Each article has a headline, category tag, and source link only.</p>
+      </div>
+      <div id="supp-summary-categories"></div>
+      <button class="btn-add-cat" type="button" id="btn-add-supp-cat" aria-label="Add supplementary category">
+        <span class="btn-add-icon">+</span> Add Category
+      </button>
+    </section>
+
+    <!-- ── SUPPLEMENTARY DETAIL ── -->
+    <section class="card" id="section-supp-detail">
+      <div class="section-header-row">
+        <h2 class="section-heading">Supplementary News – In Detail</h2>
+        <p class="section-hint">Full article text (first 100–200 words). Truncated with "…" automatically.</p>
+      </div>
+      <div id="supp-detail-categories"></div>
+      <button class="btn-add-cat" type="button" id="btn-add-detail-cat" aria-label="Add detail category">
+        <span class="btn-add-icon">+</span> Add Category
+      </button>
+    </section>
+
+  </div>
+</main>
+
+<!-- ── PREVIEW MODAL ── -->
+<div class="modal-backdrop" id="modal-backdrop" hidden aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h3 id="modal-title">Document Preview</h3>
+      <button class="modal-close" id="modal-close" type="button" aria-label="Close preview">✕</button>
+    </div>
+    <div class="modal-body" id="modal-preview-body"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modal-cancel" type="button">Close</button>
+      <button class="btn-primary" id="modal-generate" type="button">Generate .docx</button>
+    </div>
+  </div>
+</div>
+
+<!-- Article template (hidden, cloned by JS) -->
+<template id="tpl-article">
+  <div class="article-entry" data-id="">
+    <div class="article-entry-header">
+      <span class="article-num"></span>
+      <button class="btn-remove" type="button" aria-label="Remove article">✕</button>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Headline</label>
+      <input class="field-input field-headline" type="text" placeholder="Article headline…" maxlength="300" autocomplete="off">
+    </div>
+    <div class="field-row field-related-wrap" hidden>
+      <label class="field-label">Related Headline (optional)</label>
+      <input class="field-input field-related-headline" type="text" placeholder="Related article headline…" maxlength="300" autocomplete="off">
+      <label class="field-label" style="margin-top:8px">Related Source</label>
+      <input class="field-input field-related-source" type="text" placeholder="Source name, e.g. EconomyNext" maxlength="100" autocomplete="off">
+      <label class="field-label" style="margin-top:8px">Related Link URL</label>
+      <input class="field-input field-related-link" type="url" placeholder="https://…" maxlength="2048" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <label class="field-label">Body Text <span class="field-hint">(first 100–200 words; rest auto-truncated)</span></label>
+      <textarea class="field-input field-body" rows="5" placeholder="Paste article text…" maxlength="5000"></textarea>
+      <div class="word-count"><span class="wc-num">0</span> words</div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Source Name</label>
+      <input class="field-input field-source" type="text" placeholder="e.g. DailyFT" maxlength="100" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <label class="field-label">Read More URL</label>
+      <input class="field-input field-link" type="url" placeholder="https://…" maxlength="2048" autocomplete="off">
+    </div>
+    <div class="field-row field-related-toggle-wrap">
+      <label class="toggle-label">
+        <input type="checkbox" class="field-has-related">
+        Include a "RELATED:" article link
+      </label>
+    </div>
+  </div>
+</template>
+
+<!-- Summary article template -->
+<template id="tpl-summary-article">
+  <div class="article-entry summary-entry" data-id="">
+    <div class="article-entry-header">
+      <span class="article-num"></span>
+      <button class="btn-remove" type="button" aria-label="Remove article">✕</button>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Headline</label>
+      <input class="field-input field-headline" type="text" placeholder="Article headline…" maxlength="300" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <label class="field-label">Company / Tag <span class="field-hint">(optional)</span></label>
+      <input class="field-input field-company" type="text" placeholder="e.g. SriLankan Airlines" maxlength="100" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <label class="field-label">Source Name</label>
+      <input class="field-input field-source" type="text" placeholder="e.g. Daily Mirror" maxlength="100" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <label class="field-label">Read More URL</label>
+      <input class="field-input field-link" type="url" placeholder="https://…" maxlength="2048" autocomplete="off">
+    </div>
+  </div>
+</template>
+
+<!-- Category block template -->
+<template id="tpl-category">
+  <div class="cat-block" data-cat-id="">
+    <div class="cat-header-row">
+      <input class="cat-name-input" type="text" placeholder="Category name, e.g. Economy" maxlength="80" autocomplete="off">
+      <button class="btn-remove-cat" type="button" aria-label="Remove category">Remove</button>
+    </div>
+    <div class="cat-articles"></div>
+    <button class="btn-add btn-add-in-cat" type="button" aria-label="Add article to category">
+      <span class="btn-add-icon">+</span> Add Article
+    </button>
+  </div>
+</template>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+<script src="builder.js"></script>
+</body>
+</html>

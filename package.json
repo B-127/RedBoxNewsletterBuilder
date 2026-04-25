@@ -1,0 +1,12 @@
+{
+  "name": "red-box-newsletter",
+  "version": "1.0.0",
+  "description": "The Red Box — newsletter builder and .docx exporter",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
