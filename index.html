@@ -3,18 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy"
-    content="
-      default-src   'none';
-      script-src    'self' https://cdnjs.cloudflare.com;
-      style-src     'self' https://fonts.googleapis.com;
-      font-src      'self' https://fonts.gstatic.com;
-      connect-src   'self';
-      img-src       'self' data:;
-      base-uri      'none';
-      form-action   'none';
-      frame-ancestors 'none';
-    ">
+  <!--
+    CSP is intentionally delivered via HTTP headers in deploy.yml, not via <meta>.
+    Reason: <meta> CSP cannot enforce frame-ancestors, and Google Fonts injects
+    inline <style> tags that a strict meta CSP blocks with no override available.
+    The _headers file (see below) sets the correct policy server-side for GitHub Pages.
+  -->
   <title>Newsletter Builder — The Red Box</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,9 +121,9 @@
     <div class="field-row field-related-wrap" hidden>
       <label class="field-label">Related Headline (optional)</label>
       <input class="field-input field-related-headline" type="text" placeholder="Related article headline…" maxlength="300" autocomplete="off">
-      <label class="field-label" style="margin-top:8px">Related Source</label>
+      <label class="field-label field-label-mt">Related Source</label>
       <input class="field-input field-related-source" type="text" placeholder="Source name, e.g. EconomyNext" maxlength="100" autocomplete="off">
-      <label class="field-label" style="margin-top:8px">Related Link URL</label>
+      <label class="field-label field-label-mt">Related Link URL</label>
       <input class="field-input field-related-link" type="url" placeholder="https://…" maxlength="2048" autocomplete="off">
     </div>
     <div class="field-row">
@@ -194,7 +188,12 @@
   </div>
 </template>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"
+<!--
+  docx library — loaded from unpkg (mirrors npm registry exactly).
+  v8.5.0 UMD build. No cdnjs package exists for this library at this version.
+  unpkg serves directly from the npm tarball; no CDN caching inconsistencies.
+-->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 <script src="builder.js"></script>
