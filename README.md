@@ -1,4 +1,4 @@
-# The Red Box — Newsletter Builder 📰
+# The Red Box: Newsletter Builder 📰
 
 A standalone, client-side tool for composing **The Red Box** weekly email digest and exporting it as a formatted `.docx` file.
 
