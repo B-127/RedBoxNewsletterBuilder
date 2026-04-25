@@ -2,7 +2,7 @@
 
 A standalone, client-side tool for composing **The Red Box** weekly email digest and exporting it as a formatted `.docx` file.
 
-No backend. No database. No data leaves your browser. The Word document is generated entirely in-page and downloaded directly.
+No backend. No database. No data leaves the browser. The Word document is generated entirely in-page and downloaded directly.
 
 ---
 
@@ -83,5 +83,3 @@ All security measures are enforced entirely client-side:
 - **Supply-chain safety** — all GitHub Actions pinned to full commit SHAs
 
 ---
-
-*Not affiliated with any publication. Built for readers.*
