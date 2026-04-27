@@ -59,9 +59,28 @@ function wordCount(str) {
   return str.trim() === '' ? 0 : str.trim().split(/\s+/).length;
 }
 function truncateWords(str, limit) {
-  const words = str.trim().split(/\s+/);
-  if (words.length <= limit) return str.trim();
-  return words.slice(0, limit).join(' ') + '….';
+  // Preserve paragraph breaks (\n\n) while counting total words across all paras
+  const normalised = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Split into paragraphs first
+  const paragraphs = normalised.split(/\n{2,}/);
+  const result = [];
+  let remaining = limit;
+  for (const para of paragraphs) {
+    if (remaining <= 0) break;
+    const words = para.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) continue;
+    if (words.length <= remaining) {
+      result.push(words.join(' '));
+      remaining -= words.length;
+    } else {
+      result.push(words.slice(0, remaining).join(' ') + '….');
+      remaining = 0;
+    }
+  }
+  const joined = result.join('\n\n');
+  // Only add ellipsis suffix if we actually cut something
+  const totalWords = paragraphs.flatMap(p => p.trim().split(/\s+/).filter(Boolean)).length;
+  return totalWords > limit ? joined : normalised.trim();
 }
 
 /* ── TOAST ── */
@@ -394,15 +413,17 @@ async function generateDocx(data) {
     // Empty line after headline
     cellChildren.push(emptyPara(0));
 
-    // Body paragraphs — split on newlines, yellow highlight on first substantive paras
+    // Body paragraphs: split on blank lines to preserve paragraph structure.
+    // Pasted text from Word/browser uses \n\n between paragraphs; a single \n
+    // within a paragraph is a soft wrap and becomes a space.
     if (article.body) {
-      const paras = article.body.split('\n').filter(p => p.trim());
+      const normalised = article.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const paras = normalised.split(/\n{2,}/).map(p => p.replace(/\n/g, ' ').trim()).filter(p => p);
       paras.forEach((p, i) => {
-        // Highlight first 2 substantive paragraphs (matching reference doc pattern)
         const highlight = i < 2 ? 'yellow' : undefined;
         cellChildren.push(vPara(
           vRun(p, { highlight }),
-          { after: i < paras.length - 1 ? 80 : 0 }
+          { after: 80 }
         ));
         if (i < paras.length - 1) cellChildren.push(emptyPara(0));
       });
@@ -563,11 +584,12 @@ async function generateDocx(data) {
         // Article headline — bold
         children.push(vPara(vRun(a.headline, { bold: true }), { before: 80, after: 80 }));
 
-        // Body
+        // Body: split on blank lines to preserve paragraph spacing
         if (a.body) {
-          const paras = a.body.split('\n').filter(p => p.trim());
+          const normalised = a.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+          const paras = normalised.split(/\n{2,}/).map(p => p.replace(/\n/g, ' ').trim()).filter(p => p);
           paras.forEach((p, i) => {
-            children.push(vPara(vRun(p), { after: i < paras.length - 1 ? 80 : 0 }));
+            children.push(vPara(vRun(p), { after: 80 }));
             if (i < paras.length - 1) children.push(emptyPara(0));
           });
           children.push(emptyPara(0));
