@@ -474,59 +474,67 @@ async function generateDocx(data) {
   }
 
   /* ── Summary table ──
-     Matches reference exactly:
-     - Category header: full-width (9314), bold, gridSpan=3
-     - 2-col rows: headline (6004) + read more (3310) — for cats without company tag
-     - 3-col rows: headline (3403) + company (2601) + read more (3310) — for cats with tags
+     Per reference (image 2):
+     - Category header: full-width, BLACK background, WHITE bold text, centred
+     - Per-article: 3-col if that article has a company/sector tag, else 2-col
+       2-col: headline spans cols 1+2 (6004 DXA), read more in col 3 (3310 DXA)
+       3-col: headline (3403) | company/sector (2601) | read more (3310)
   */
   function summaryTable(categories) {
     const rows = [];
 
-    categories.forEach(cat => {
-      // Determine if this category uses 3-col (has any article with a company tag)
-      const hasCompany = cat.articles.some(a => a.company && a.company.trim());
+    const catHeaderBorder = {
+      top:    { style: BorderStyle.SINGLE, size: 4, color: '000000', space: 0 },
+      bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000', space: 0 },
+      left:   { style: BorderStyle.SINGLE, size: 4, color: '000000', space: 0 },
+      right:  { style: BorderStyle.SINGLE, size: 4, color: '000000', space: 0 },
+    };
 
-      // Category header row — full width, bold
+    categories.forEach(cat => {
+      // ── Category header: black bg, white bold centred text ──
       rows.push(new TableRow({
         children: [
           new TableCell({
             width: { size: TBL_W_SUM, type: WidthType.DXA },
             columnSpan: 3,
-            borders: blackBorders,
-            margins: { top: 0, bottom: 0, left: 100, right: 100 },
+            borders: catHeaderBorder,
+            shading: { fill: '000000', type: ShadingType.CLEAR },
+            margins: { top: 40, bottom: 40, left: 100, right: 100 },
             children: [
               new Paragraph({
-                alignment: AlignmentType.BOTH,
+                alignment: AlignmentType.CENTER,
                 spacing: { before: 0, after: 0 },
-                children: [vRun(cat.name, { bold: true })],
+                children: [vRun(cat.name, { bold: true, color: 'FFFFFF' })],
               }),
             ],
           }),
         ],
       }));
 
-      // Article rows
+      // ── Article rows — decided per-article, not per-category ──
       cat.articles.forEach(a => {
-        if (hasCompany) {
-          // 3-column row
+        const hasTag = a.company && a.company.trim();
+
+        if (hasTag) {
+          // 3-column: headline | company/sector | read more
           rows.push(new TableRow({
             children: [
               new TableCell({
                 width: { size: COL1, type: WidthType.DXA },
                 borders: blackBorders,
-                margins: { top: 0, bottom: 0, left: 100, right: 100 },
+                margins: { top: 40, bottom: 40, left: 100, right: 100 },
                 children: [vPara(vRun(a.headline), { after: 0 })],
               }),
               new TableCell({
                 width: { size: COL2, type: WidthType.DXA },
                 borders: blackBorders,
-                margins: { top: 0, bottom: 0, left: 100, right: 100 },
-                children: [vPara(vRun(a.company || ''), { after: 0 })],
+                margins: { top: 40, bottom: 40, left: 100, right: 100 },
+                children: [vPara(vRun(a.company), { after: 0 })],
               }),
               new TableCell({
                 width: { size: COL3, type: WidthType.DXA },
                 borders: blackBorders,
-                margins: { top: 0, bottom: 0, left: 100, right: 100 },
+                margins: { top: 40, bottom: 40, left: 100, right: 100 },
                 children: [new Paragraph({
                   alignment: AlignmentType.BOTH,
                   spacing: { before: 0, after: 0 },
@@ -536,20 +544,20 @@ async function generateDocx(data) {
             ],
           }));
         } else {
-          // 2-column row (no company tag)
+          // 2-column: headline spans cols 1+2, read more in col 3
           rows.push(new TableRow({
             children: [
               new TableCell({
                 width: { size: COL_2C_1, type: WidthType.DXA },
                 columnSpan: 2,
                 borders: blackBorders,
-                margins: { top: 0, bottom: 0, left: 100, right: 100 },
+                margins: { top: 40, bottom: 40, left: 100, right: 100 },
                 children: [vPara(vRun(a.headline), { after: 0 })],
               }),
               new TableCell({
                 width: { size: COL_2C_2, type: WidthType.DXA },
                 borders: blackBorders,
-                margins: { top: 0, bottom: 0, left: 100, right: 100 },
+                margins: { top: 40, bottom: 40, left: 100, right: 100 },
                 children: [new Paragraph({
                   alignment: AlignmentType.BOTH,
                   spacing: { before: 0, after: 0 },
