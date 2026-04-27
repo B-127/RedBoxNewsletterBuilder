@@ -301,7 +301,7 @@ async function generateDocx(data) {
   const {
     Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
     AlignmentType, BorderStyle, WidthType, ShadingType,
-    ExternalHyperlink, UnderlineType, HighlightColor
+    ExternalHyperlink, UnderlineType
   } = docx;
 
   /* ── Reference-matched constants ── */
@@ -399,7 +399,7 @@ async function generateDocx(data) {
       const paras = article.body.split('\n').filter(p => p.trim());
       paras.forEach((p, i) => {
         // Highlight first 2 substantive paragraphs (matching reference doc pattern)
-        const highlight = i < 2 ? HighlightColor.YELLOW : undefined;
+        const highlight = i < 2 ? 'yellow' : undefined;
         cellChildren.push(vPara(
           vRun(p, { highlight }),
           { after: i < paras.length - 1 ? 80 : 0 }
