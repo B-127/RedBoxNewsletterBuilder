@@ -417,13 +417,29 @@ async function generateDocx(data) {
     return new Paragraph({ spacing: { before: 0, after: 0 }, children: [] });
   }
 
+  // Horizontal rule paragraph — used as visual separator between sections
+  // Rendered as a paragraph with a bottom border (single, sz=6, black)
+  function hrulePara() {
+    return new Paragraph({
+      spacing: { before: 0, after: 0 },
+      border: {
+        bottom: { style: BorderStyle.SINGLE, size: 6, color: C_BLACK, space: 1 },
+      },
+      children: [],
+    });
+  }
+
   // Hyperlink using rStyle "Hyperlink" — exactly as reference (no explicit font/color on run)
   function makeHyperlink(text, url) {
     const v = validateUrl(url);
     const safeUrl = v.ok && v.url ? v.url : null;
+    // Explicitly set font and size to match body text (Verdana 10pt = sz 20)
+    // so Read More links are always the same size/font as the article body.
     const linkRun = new TextRun({
       text,
-      style: 'Hyperlink',  // references the Hyperlink character style (color 0000FF + underline)
+      font: F_MAIN,
+      size: SZ_BODY,
+      style: 'Hyperlink',  // provides color 0000FF + underline from character style
     });
     if (safeUrl) {
       return new ExternalHyperlink({ link: safeUrl, children: [linkRun] });
@@ -720,6 +736,8 @@ async function generateDocx(data) {
       if (i < data.topStory.length - 1) docChildren.push(emptyPara());
     });
     docChildren.push(emptyPara());
+    docChildren.push(hrulePara());
+    docChildren.push(emptyPara());
   }
 
   // ── 01 global updates to keep an eye on ──
@@ -731,6 +749,18 @@ async function generateDocx(data) {
       if (i < data.global.length - 1) docChildren.push(emptyPara());
     });
     docChildren.push(emptyPara());
+    docChildren.push(hrulePara());
+    docChildren.push(emptyPara());
+  }
+
+  // ── Supplementary News – In Summary (order: Summary before Detail) ──
+  if (data.suppSummary.length) {
+    docChildren.push(suppHeading('Supplementary News – In Summary'));
+    docChildren.push(emptyPara());
+    docChildren.push(summaryTable(data.suppSummary));
+    docChildren.push(emptyPara());
+    docChildren.push(hrulePara());
+    docChildren.push(emptyPara());
   }
 
   // ── Supplementary News – In Detail ──
@@ -738,14 +768,6 @@ async function generateDocx(data) {
     docChildren.push(suppHeading('Supplementary News – In Detail'));
     docChildren.push(emptyPara());
     detailSection(data.suppDetail).forEach(c => docChildren.push(c));
-    docChildren.push(emptyPara());
-  }
-
-  // ── Supplementary News – In Summary ──
-  if (data.suppSummary.length) {
-    docChildren.push(suppHeading('Supplementary News – In Summary'));
-    docChildren.push(emptyPara());
-    docChildren.push(summaryTable(data.suppSummary));
     docChildren.push(emptyPara());
   }
 
