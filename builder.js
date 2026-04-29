@@ -624,20 +624,23 @@ async function generateDocx(data) {
         } else {
           /* 2-column row
              col1+2: gridSpan=2, outer sz=18, bottom sz=4, right=nil, vAlign=center
-             col3:   outer sz=18, bottom sz=4, left=nil, vAlign=center */
+             col3:   outer sz=18, bottom sz=4, left=nil, vAlign=center
+             Cell margins create visual gap between headline and Read More link */
           rows.push(new TableRow({
             children: [
               new TableCell({
-                width:      { size: COL2C1, type: WidthType.DXA },
-                columnSpan: 2,
-                borders:    { top: au18(), bottom: au4(), left: au18(), right: nil_() },
+                width:         { size: COL2C1, type: WidthType.DXA },
+                columnSpan:    2,
+                borders:       { top: au18(), bottom: au4(), left: au18(), right: nil_() },
                 verticalAlign: VerticalAlign.CENTER,
-                children:   [vPara(vRun(a.headline))],
+                margins:       { top: 0, bottom: 0, left: 100, right: 200 },
+                children:      [vPara(vRun(a.headline))],
               }),
               new TableCell({
-                width:   { size: COL2C2, type: WidthType.DXA },
-                borders: { top: au18(), bottom: au4(), left: nil_(), right: au18() },
+                width:         { size: COL2C2, type: WidthType.DXA },
+                borders:       { top: au18(), bottom: au4(), left: nil_(), right: au18() },
                 verticalAlign: VerticalAlign.CENTER,
+                margins:       { top: 0, bottom: 0, left: 200, right: 100 },
                 children: [new Paragraph({
                   alignment: AlignmentType.BOTH,
                   spacing:   { before: 0, after: 0 },
