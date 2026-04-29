@@ -595,13 +595,13 @@ async function generateDocx(data) {
             children: [
               new TableCell({
                 width:   { size: COL1, type: WidthType.DXA },
-                borders: { top: au18(), bottom: au2(), left: au18(), right: nil_() },
+                borders: { top: au18(), bottom: au18(), left: au18(), right: nil_() },
                 verticalAlign: VerticalAlign.CENTER,
                 children: [vPara(vRun(a.headline))],
               }),
               new TableCell({
                 width:   { size: COL2, type: WidthType.DXA },
-                borders: { top: au18(), bottom: au2(), left: nil_(), right: nil_() },
+                borders: { top: au18(), bottom: au18(), left: nil_(), right: nil_() },
                 verticalAlign: VerticalAlign.CENTER,
                 children: [new Paragraph({
                   alignment: AlignmentType.CENTER,
@@ -611,7 +611,7 @@ async function generateDocx(data) {
               }),
               new TableCell({
                 width:   { size: COL3, type: WidthType.DXA },
-                borders: { top: au18(), bottom: au2(), left: nil_(), right: au18() },
+                borders: { top: au18(), bottom: au18(), left: nil_(), right: au18() },
                 verticalAlign: VerticalAlign.CENTER,
                 children: [new Paragraph({
                   alignment: AlignmentType.BOTH,
@@ -631,14 +631,14 @@ async function generateDocx(data) {
               new TableCell({
                 width:         { size: COL2C1, type: WidthType.DXA },
                 columnSpan:    2,
-                borders:       { top: au18(), bottom: au4(), left: au18(), right: nil_() },
+                borders:       { top: au18(), bottom: au18(), left: au18(), right: nil_() },
                 verticalAlign: VerticalAlign.CENTER,
                 margins:       { top: 0, bottom: 0, left: 100, right: 200 },
                 children:      [vPara(vRun(a.headline))],
               }),
               new TableCell({
                 width:         { size: COL2C2, type: WidthType.DXA },
-                borders:       { top: au18(), bottom: au4(), left: nil_(), right: au18() },
+                borders:       { top: au18(), bottom: au18(), left: nil_(), right: au18() },
                 verticalAlign: VerticalAlign.CENTER,
                 margins:       { top: 0, bottom: 0, left: 200, right: 100 },
                 children: [new Paragraph({
