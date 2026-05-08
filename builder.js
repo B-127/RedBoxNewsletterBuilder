@@ -482,9 +482,17 @@ async function generateDocx(data) {
 
     // Headline: bold, sz=20, align=both
     paras.push(vPara(vRun(article.headline, { bold: true })));
-    // Author line: bold, sz=20, align=both — rendered on the line immediately below headline
+    // Author line: bold+italics with "by " prefix — always formatted this way
+    // since only opinion pieces carry a byline
     if (article.author && article.author.trim()) {
-      paras.push(vPara(vRun(article.author.trim(), { bold: true })));
+      const authorText = 'by ' + article.author.trim();
+      paras.push(vPara(new TextRun({
+        text: authorText,
+        font: F_MAIN,
+        size: SZ_BODY,
+        bold: true,
+        italics: true,
+      })));
     }
     paras.push(emptyPara());
 
@@ -680,9 +688,16 @@ async function generateDocx(data) {
       cat.articles.forEach(a => {
         // Article headline
         children.push(vPara(vRun(a.headline, { bold: true })));
-        // Author line: bold, same size as headline/body
+        // Author line: bold+italics with "by " prefix
         if (a.author && a.author.trim()) {
-          children.push(vPara(vRun(a.author.trim(), { bold: true })));
+          const authorText = 'by ' + a.author.trim();
+          children.push(vPara(new TextRun({
+            text: authorText,
+            font: F_MAIN,
+            size: SZ_BODY,
+            bold: true,
+            italics: true,
+          })));
         }
         children.push(emptyPara());
 
