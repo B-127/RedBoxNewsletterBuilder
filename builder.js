@@ -200,6 +200,7 @@ function collectArticles(listEl, isSummary = false) {
       const hasRelated = entry.querySelector('.field-has-related')?.checked;
       articles.push({
         headline        : sanitiseText(entry.querySelector('.field-headline').value, MAX_TITLE_LEN),
+        author          : sanitiseText(entry.querySelector('.field-author')?.value || '', 200),
         body            : bodyTrunc,
         source          : sanitiseText(entry.querySelector('.field-source').value, MAX_SOURCE_LEN),
         link            : entry.querySelector('.field-link').value.trim(),
@@ -481,6 +482,10 @@ async function generateDocx(data) {
 
     // Headline: bold, sz=20, align=both
     paras.push(vPara(vRun(article.headline, { bold: true })));
+    // Author line: bold, sz=20, align=both — rendered on the line immediately below headline
+    if (article.author && article.author.trim()) {
+      paras.push(vPara(vRun(article.author.trim(), { bold: true })));
+    }
     paras.push(emptyPara());
 
     // Body: split on double newlines to preserve paragraph structure
@@ -614,7 +619,7 @@ async function generateDocx(data) {
                 borders: { top: au18(), bottom: au18(), left: nil_(), right: au18() },
                 verticalAlign: VerticalAlign.CENTER,
                 children: [new Paragraph({
-                  alignment: AlignmentType.BOTH,
+                  alignment: AlignmentType.CENTER,
                   spacing:   { before: 0, after: 0 },
                   children:  [summaryReadMore(rmText, a.link)],
                 })],
@@ -642,7 +647,7 @@ async function generateDocx(data) {
                 verticalAlign: VerticalAlign.CENTER,
                 margins:       { top: 0, bottom: 0, left: 200, right: 100 },
                 children: [new Paragraph({
-                  alignment: AlignmentType.BOTH,
+                  alignment: AlignmentType.CENTER,
                   spacing:   { before: 0, after: 0 },
                   children:  [summaryReadMore(rmText, a.link)],
                 })],
@@ -675,6 +680,10 @@ async function generateDocx(data) {
       cat.articles.forEach(a => {
         // Article headline
         children.push(vPara(vRun(a.headline, { bold: true })));
+        // Author line: bold, same size as headline/body
+        if (a.author && a.author.trim()) {
+          children.push(vPara(vRun(a.author.trim(), { bold: true })));
+        }
         children.push(emptyPara());
 
         // Body paragraphs
